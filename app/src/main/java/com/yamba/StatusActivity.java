@@ -73,7 +73,7 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
     }
 
     /**
-     * Asynchronously post to twitter
+     * Asynchronously post to yamba service
      */
     private final class PostTask extends AsyncTask<String, Void, String> {
         // Call to initiate the background activity
