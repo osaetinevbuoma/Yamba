@@ -1,5 +1,6 @@
 package com.yamba;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -37,7 +38,7 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
         buttonTweet = (Button) findViewById(R.id.buttonTweet);
         textCount = (TextView) findViewById(R.id.textCount);
 
-        buttonTweet.setOnClickListener(this);
+        //buttonTweet.setOnClickListener(this);
 
         defaultTextColor = textCount.getTextColors().getDefaultColor();
         editStatus.addTextChangedListener(new TextWatcher() {
@@ -73,6 +74,19 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
     }
 
     /**
+     * This method is called from the activity button element and does the same things as the onClick method
+     * based on the OnClickListener. It is just a test to see the different ways on using the onClick
+     * functionalities of an activity button, either from the xml file or in the java file
+     * @param view - A View object
+     */
+    public void sendTweet(View view) {
+        String status = editStatus.getText().toString();
+        Log.d(TAG, "onClicked with status: " + status);
+
+        new PostTask().execute(status);
+    }
+
+    /**
      * Asynchronously post to yamba service
      */
     private final class PostTask extends AsyncTask<String, Void, String> {
@@ -82,8 +96,11 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
             YambaClient yambaCloud = new YambaClient("student", "password");
 
             try {
-                yambaCloud.postStatus(params[0]);
-                return "Successfully posted";
+                if (params[0].isEmpty()) return "You cannot post an empty tweet";
+                else {
+                    yambaCloud.postStatus(params[0]);
+                    return "Successfully posted";
+                }
             } catch (YambaClientException e) {
                 Log.e(TAG, "When posting to Yamba Service: " +  e.toString());
                 e.printStackTrace();
@@ -111,13 +128,18 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            case R.id.action_tweet:
+                startActivity(new Intent("com.marakana.android.yamba.action.tweet"));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

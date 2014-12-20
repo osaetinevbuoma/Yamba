@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:text="@string/button_tweet"
         android:textSize="20sp"
-        android:layout_below="@id/textCount"/>
+        android:layout_below="@id/textCount"
+        android:onClick="sendTweet"/>
 
 </RelativeLayout>
