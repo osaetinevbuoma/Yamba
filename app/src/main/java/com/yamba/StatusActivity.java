@@ -1,11 +1,14 @@
 package com.yamba;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +30,7 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
     private Button buttonTweet;
     private TextView textCount;
     private int defaultTextColor;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,17 +97,33 @@ public class StatusActivity extends ActionBarActivity implements OnClickListener
         // Call to initiate the background activity
         @Override
         protected String doInBackground(String... params) {
-            YambaClient yambaCloud = new YambaClient("student", "password");
-
             try {
-                if (params[0].isEmpty()) return "You cannot post an empty tweet";
+                prefs = PreferenceManager.getDefaultSharedPreferences(StatusActivity.this);
+                String username = prefs.getString("username", "");
+                String password = prefs.getString("password", "");
+
+                /**
+                 * Check that username and password are not empty.
+                 * If empty, Toast a message to set login info and bounce to SettingsActivity
+                 * Hint: TextUtils
+                 */
+                if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
+                    StatusActivity.this.startActivity(new Intent(StatusActivity.this, SettingsActivity.class));
+
+                    return "Please set your username and password";
+                }
+
+                if (TextUtils.isEmpty(params[0])) return "You cannot post an empty tweet"; // Ensure that user does not try posting an empty tweet
                 else {
+                    YambaClient yambaCloud = new YambaClient(username, password);
                     yambaCloud.postStatus(params[0]);
+
                     return "Successfully posted";
                 }
             } catch (YambaClientException e) {
                 Log.e(TAG, "When posting to Yamba Service: " +  e.toString());
                 e.printStackTrace();
+
                 return "Failed to post to Yamba Service";
             }
         }
