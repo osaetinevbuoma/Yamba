@@ -32,6 +32,13 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <provider
+            android:name=".StatusProvider"
+            android:authorities="content://com.yamba"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
     </application>
 
 </manifest>

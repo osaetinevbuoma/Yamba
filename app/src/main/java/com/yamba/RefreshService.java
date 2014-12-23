@@ -4,8 +4,10 @@ import java.util.List;
 
 import android.app.IntentService;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -56,10 +58,26 @@ public class RefreshService extends IntentService {
 
         Log.d(TAG, "Service - onStart");
 
+        // Open up database connection
+        DbHelper dbHelper = new DbHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
         YambaClient yambaClient = new YambaClient(USERNAME, PASSWORD);
         try {
             List<Status> timeline = yambaClient.getTimeline(20);
             for (Status status : timeline) {
+                contentValues.clear();
+
+                // Set values for insert
+                contentValues.put(StatusContract.Column.ID, status.getId());
+                contentValues.put(StatusContract.Column.USER, status.getUser());
+                contentValues.put(StatusContract.Column.MESSAGE, status.getMessage());
+                contentValues.put(StatusContract.Column.CREATED_AT, status.getCreatedAt().getTime());
+
+                // Insert into table
+                db.insertWithOnConflict(StatusContract.TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+
                 Log.d(TAG, String.format("%s: %s", status.getUser(), status.getMessage()));
             }
         } catch (YambaClientException e) {
