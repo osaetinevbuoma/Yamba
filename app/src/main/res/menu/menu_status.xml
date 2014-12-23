@@ -23,6 +23,7 @@
     <item
         android:id="@+id/action_purge"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/purge"/>
+        android:title="@string/purge"
+        app:showAsAction="withText"/>
 
 </menu>
